@@ -11,10 +11,17 @@
 #include <unistd.h>
 
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
 const int BUFFER_SIZE = 1024;
+
+string IntToString (long a){
+	ostringstream temp;
+	temp<<a;
+	return temp.str();
+}
 
 enum Direction{
 	UP,
@@ -142,8 +149,7 @@ int main(int argc, char **argv){
 		f.open(params.what.c_str(), ios::in | ios::binary);
 		f.read(data, file_size);
 		f.close();
-		string msg = "UPLOAD:" + params.what + ";" + "FILE_SIZE:" + to_string(file_size) + 
-					 ";" + "PART_NUM:" + "aaa" + ";" + "PART_SIZE:" + "aaa" + ";\n";
+		string msg = "UPLOAD:" + params.what + ";" + "FILE_SIZE:" + IntToString(file_size) + ";\n";
 		int msg_size = msg.length();
 		msg.append(data, file_size);
 		send(socketfd, msg.c_str(), msg_size + file_size, 0);

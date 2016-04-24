@@ -2,6 +2,7 @@
 #include <string>
 
 #include <cstring> 
+#include <cstdlib>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -11,12 +12,19 @@
 #include <sys/stat.h>
 
 #include <fstream>
+#include <sstream>
 
 #define BACKLOG	 50
 
 using namespace std;
 
 const int BUFFER_SIZE = 2048;
+
+string IntToString (long a){
+	ostringstream temp;
+	temp<<a;
+	return temp.str();
+}
 
 long GetFileSize(string filename){
 	struct stat stat_buf;
@@ -92,7 +100,7 @@ void * handle(void *pnewsock){
 		char * fl = new char[file_size];
 		ifstream f;
 		f.exceptions (ifstream::failbit | ifstream::badbit);
-		string msg = "DOWNLOAD:" + file_name + ";" + "FILE_SIZE:" + to_string(file_size) + 
+		string msg = "DOWNLOAD:" + file_name + ";" + "FILE_SIZE:" + IntToString(file_size) + 
 				 ";" + "PART_NUM:" + "aaa" + ";" + "PART_SIZE:" + "aaa" + ";\n";
 		
 		cout << "bfr try" << endl;
