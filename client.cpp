@@ -128,9 +128,11 @@ int main(int argc, char **argv){
 		return EXIT_FAILURE;
 	}
 
-	memset(&serv_addr, 0, sizeof(sockaddr_in));
+//	memset(&serv_addr, 0, sizeof(sockaddr_in));
+	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+//	memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+	bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
 	serv_addr.sin_port = htons(params.port);
 
 	if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0){
