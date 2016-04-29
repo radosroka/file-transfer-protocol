@@ -14,6 +14,8 @@
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include <netdb.h>
 #include <unistd.h>
 
@@ -38,7 +40,7 @@ enum Direction{
 
 struct Params{
 	string host;
-	string  port;
+	unsigned int port;
 	Direction d;
 	string what;
 };
@@ -52,8 +54,11 @@ long GetFileSize(string filename)
 
 int main(int argc, char **argv){
 	
-	Params params{"", "", UNSET, ""};
+	Params params{"", 0, UNSET, ""};
 	int c;
+	char * ptr = nullptr;
+	char * PORT = nullptr;
+
 	opterr = 0;
 	while ((c = getopt (argc, argv, "h:p:d:u:")) != -1)
 		switch (c){
@@ -61,7 +66,13 @@ int main(int argc, char **argv){
 				params.host = optarg;
 				break;
 			case 'p':
-				params.port = optarg;
+				PORT = optarg;
+				params.port = strtoul(PORT, &ptr, 0 );
+				if (*ptr != '\0'){
+					cerr  << "Unrecognized port: " << PORT << endl;
+					return EXIT_FAILURE;
+				}
+
 				break;
 			case 'd':
 				if (params.d == UNSET){
@@ -93,7 +104,7 @@ int main(int argc, char **argv){
 		cerr << "Host parameter is missing" << endl;
 		return EXIT_FAILURE;
 	}
-	if (params.port == ""){
+	if (params.port == 0){
 		cerr << "Port parameter is missing" << endl;
 		return EXIT_FAILURE;
 	}
@@ -120,7 +131,7 @@ int main(int argc, char **argv){
 	memset(&serv_addr, 0, sizeof(sockaddr_in));
 	serv_addr.sin_family = AF_INET;
 	memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
-	serv_addr.sin_port = htons(stoi(params.port, NULL, 0));
+	serv_addr.sin_port = htons(params.port);
 
 	if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0){
 		cerr << "Cannot connect" << endl;
